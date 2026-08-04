@@ -27,7 +27,24 @@ const __dirname = path.dirname(__filename);
 const uploadsDir = path.join(__dirname, 'uploads');
 
 // Middleware
-app.use(cors());
+const allowedOrigins = [
+    'http://localhost:3001',
+    'http://localhost:5173',
+    process.env.FRONTEND_URL,  // e.g. https://inet-mart.vercel.app
+].filter(Boolean);
+
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl, Postman)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error(`CORS policy: origin ${origin} not allowed`));
+        }
+    },
+    credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
