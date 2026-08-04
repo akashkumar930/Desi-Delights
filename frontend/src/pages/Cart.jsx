@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import ErrorMessage from '../components/ErrorMessage';
 
 const Cart = () => {
     const { cartItems, removeFromCart, updateQuantity, clearCart, getTotalPrice } = useCart();
+    const { user } = useAuth();
     const [customerName, setCustomerName] = useState('');
     const [customerEmail, setCustomerEmail] = useState('');
     const [shippingAddress, setShippingAddress] = useState('');
@@ -13,9 +15,16 @@ const Cart = () => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
+    const isAdmin = user?.role?.toLowerCase() === 'admin';
+
     const handleCheckout = async (e) => {
         e.preventDefault();
         setError('');
+        if (isAdmin) {
+            setError('Admins can manage orders but cannot place customer orders.');
+            setLoading(false);
+            return;
+        }
         setLoading(true);
 
         const orderData = {
@@ -118,6 +127,11 @@ const Cart = () => {
                                 <ErrorMessage message={error} />
 
                                 <form onSubmit={handleCheckout} className="space-y-2 sm:space-y-4">
+                                    {isAdmin && (
+                                        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-2 text-[10px] sm:text-xs text-amber-300">
+                                            Admin accounts can view and manage orders, but regular users place orders.
+                                        </div>
+                                    )}
                                     <div>
                                         <label className="block text-[10px] sm:text-xs lg:text-sm font-medium text-slate-300 mb-1 sm:mb-2">Your Name</label>
                                         <input

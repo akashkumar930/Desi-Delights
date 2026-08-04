@@ -6,8 +6,8 @@ const Orders = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState('');
-    const user = JSON.parse(localStorage.getItem('userInfo') || '{}');
-    const isAdmin = user.role === 'admin';
+    const storedUser = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    const isAdmin = storedUser.role?.toLowerCase() === 'admin';
 
     const statuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
 
