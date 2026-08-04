@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, '');
+
 const api = axios.create({
-    baseURL: 'https://inet-mart-v6h9.onrender.com/api',
+    baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json'
     }
@@ -37,8 +40,22 @@ api.interceptors.response.use(
 // Helper function to get full image URL
 export const getImageUrl = (imageUrl) => {
     if (!imageUrl) return '';
-    if (imageUrl.startsWith('http')) return imageUrl;
-    return `https://inet-mart-v6h9.onrender.com${imageUrl}`;
+
+    // Convert legacy localhost absolute URLs to the current API host.
+    if (/^https?:\/\//i.test(imageUrl)) {
+        try {
+            const url = new URL(imageUrl);
+            if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+                return `${API_ORIGIN}${url.pathname}${url.search}`;
+            }
+            return imageUrl;
+        } catch {
+            return imageUrl;
+        }
+    }
+
+    const normalizedPath = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+    return `${API_ORIGIN}${normalizedPath}`;
 };
 
 export default api;
