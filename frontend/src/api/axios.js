@@ -2,9 +2,14 @@ import axios from 'axios';
 
 const configuredApiUrl = import.meta.env.VITE_API_URL;
 const isDev = import.meta.env.DEV;
+
+// In dev: use proxy (/api) so vite.config.js forwards to localhost:5000
+// In production: use VITE_API_URL (set in Vercel), fallback to Render URL
+const RENDER_BACKEND_URL = 'https://inet-mart-5.onrender.com/api';
 const API_BASE_URL = isDev
-    ? (configuredApiUrl && configuredApiUrl !== '/api' ? configuredApiUrl : '/api')
-    : (configuredApiUrl || 'http://localhost:5000/api');
+    ? '/api'
+    : (configuredApiUrl || RENDER_BACKEND_URL);
+
 const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, '');
 
 const api = axios.create({
