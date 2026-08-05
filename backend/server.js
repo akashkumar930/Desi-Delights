@@ -24,8 +24,22 @@ const __dirname = path.dirname(__filename);
 const uploadsDir = path.join(__dirname, 'uploads');
 
 // Middleware
+const allowedOrigins = [
+    process.env.FRONTEND_URL,           // e.g. https://i-net-mart-sandhya.vercel.app
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:5173',
+].filter(Boolean);
+
 app.use(cors({
-    origin: true,
+    origin: (origin, callback) => {
+        // Allow requests with no origin (curl, Postman, server-to-server)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        // Allow any vercel.app preview deployments
+        if (/\.vercel\.app$/.test(origin)) return callback(null, true);
+        callback(new Error(`CORS blocked: ${origin}`));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
