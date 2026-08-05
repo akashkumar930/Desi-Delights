@@ -5,10 +5,18 @@ const isDev = import.meta.env.DEV;
 
 // In dev: use proxy (/api) so vite.config.js forwards to localhost:5000
 // In production: use VITE_API_URL (set in Vercel), fallback to Render URL
-const RENDER_BACKEND_URL = 'https://inet-mart-5.onrender.com/api';
+const RENDER_BACKEND_URL = 'https://inet-mart-6.onrender.com/api';
+
+// Normalize: if env var was set without /api suffix, add it
+const normalizeUrl = (url) => {
+    if (!url) return RENDER_BACKEND_URL;
+    const trimmed = url.replace(/\/$/, ''); // remove trailing slash
+    return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+};
+
 const API_BASE_URL = isDev
     ? '/api'
-    : (configuredApiUrl || RENDER_BACKEND_URL);
+    : normalizeUrl(configuredApiUrl);
 
 const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, '');
 
