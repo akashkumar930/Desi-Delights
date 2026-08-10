@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: inet-mart-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false      # set manually in Render dashboard
+      - key: JWT_SECRET
+        sync: false      # set manually in Render dashboard
+      - key: JWT_EXPIRE
+        value: 7d
+      - key: FRONTEND_URL
+        sync: false      # set after Vercel deploy, e.g. https://i-net-mart-sandhya.vercel.app

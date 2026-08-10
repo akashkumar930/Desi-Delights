@@ -4,6 +4,7 @@ import { CartProvider } from './context/CartContext';
 import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute from './components/AdminRoute';
+import UserRoute from './components/UserRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -39,6 +40,10 @@ const AppRoutes = () => {
                         <Route path="/products" element={<PrivateRoute><Products /></PrivateRoute>} />
                         <Route path="/orders" element={<PrivateRoute><Orders /></PrivateRoute>} />
                         <Route path="/cart" element={<PrivateRoute><Cart /></PrivateRoute>} />
+                        <Route path="/checkout" element={<PrivateRoute><Cart /></PrivateRoute>} />
+
+                        {/* User-only routes */}
+                        <Route path="/user-only" element={<UserRoute><Products /></UserRoute>} />
 
                         {/* Redirect */}
                         <Route path="*" element={<Navigate to="/products" />} />

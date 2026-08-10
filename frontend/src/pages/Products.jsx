@@ -14,21 +14,10 @@ const Products = () => {
     const [sortBy, setSortBy] = useState('createdAt');
     const [order, setOrder] = useState('desc');
     const { addToCart } = useCart();
-    const { userInfo } = useAuth();
+    const { user } = useAuth();
 
-    // Check if user is admin
-    const isAdmin = userInfo && userInfo.role === 'admin';
-
-    // Debug logging to check admin status
-    console.log('=== ADMIN DEBUG ===');
-    console.log('Current user info:', userInfo);
-    console.log('User role:', userInfo?.role);
-    console.log('Is admin check:', isAdmin);
-    console.log('Type of userInfo:', typeof userInfo);
-    console.log('Type of userInfo.role:', typeof userInfo?.role);
-
-    // TEMPORARY: Force admin buttons to show for testing
-    const showAdminButtons = isAdmin || true; // FORCE SHOW FOR TESTING
+    const isAdmin = user?.role?.toLowerCase() === 'admin';
+    const showAdminButtons = isAdmin;
 
     const categories = ['Electronics', 'Clothing', 'Food', 'Books', 'Home', 'Sports', 'Other'];
 
@@ -121,12 +110,21 @@ const Products = () => {
 
                             <div className="relative">
                                 <span className="absolute left-2 sm:left-3 lg:left-4 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs sm:text-sm lg:text-base">
-                                    🛍️
+                                    
                                 </span>
                                 <select value={category} onChange={(e) => setCategory(e.target.value)} className="input pl-8 sm:pl-10 lg:pl-12 appearance-none text-xs sm:text-sm lg:text-base py-2 sm:py-2 lg:py-3">
-                                    <option value="">All Categories</option>
+<option value="">🛍️All Categories</option>
                                     {categories.map(cat => (
-                                        <option key={cat} value={cat}>{cat}</option>
+                                        <option key={cat} value={cat}>
+                                            {cat === 'Electronics' && '📱 '}
+                                            {cat === 'Clothing' && '👕 '}
+                                            {cat === 'Food' && '🍔 '}
+                                            {cat === 'Books' && '📚 '}
+                                            {cat === 'Home' && '🏠 '}
+                                            {cat === 'Sports' && '⚽ '}
+                                            {cat === 'Other' && '📦 '}
+                                            {cat}
+                                        </option>
                                     ))}
                                 </select>
                             </div>
@@ -145,11 +143,11 @@ const Products = () => {
 
                             <div className="relative">
                                 <span className="absolute left-2 sm:left-3 lg:left-4 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs sm:text-sm lg:text-base">
-                                    ⬇️
+                                    
                                 </span>
                                 <select value={order} onChange={(e) => setOrder(e.target.value)} className="input pl-8 sm:pl-10 lg:pl-12 appearance-none text-xs sm:text-sm lg:text-base py-2 sm:py-2 lg:py-3">
-                                    <option value="desc">Descending</option>
-                                    <option value="asc">Ascending</option>
+                                    <option value="desc">⬇️Descending</option>
+                                    <option value="asc">⬆️Ascending</option>
                                 </select>
                             </div>
                         </div>

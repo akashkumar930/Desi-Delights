@@ -18,16 +18,32 @@ import activityRoutes from './routes/activity.js';
 import uploadRoutes from './routes/upload.js';
 import userRoutes from './routes/users.js';
 
-// Connect to database
-connectDB();
-
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const uploadsDir = path.join(__dirname, 'uploads');
 
 // Middleware
-app.use(cors());
+const allowedOrigins = [
+    process.env.FRONTEND_URL,           // e.g. https://i-net-mart-sandhya.vercel.app
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:5173',
+].filter(Boolean);
+
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow requests with no origin (curl, Postman, server-to-server)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        // Allow any vercel.app preview deployments
+        if (/\.vercel\.app$/.test(origin)) return callback(null, true);
+        callback(new Error(`CORS blocked: ${origin}`));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -71,8 +87,46 @@ app.get('/api/test-users', async (req, res) => {
 app.use(notFound);
 app.use(errorHandler);
 
+const seedDemoUsers = async () => {
+    try {
+        const User = (await import('./models/User.js')).default;
+        const demoUsers = [
+            { name: 'Sandhya', email: 'sandhya@example.com', password: 'sandhya123', role: 'admin' },
+            { name: 'Demo User', email: 'user@test.com', password: 'password123', role: 'user' },
+            { name: 'Admin Demo', email: 'admin@test.com', password: 'password123', role: 'admin' }
+        ];
+
+        for (const userData of demoUsers) {
+            const existingUser = await User.findOne({ email: userData.email });
+            if (existingUser) {
+                existingUser.name = userData.name;
+                existingUser.role = userData.role;
+                existingUser.password = userData.password;
+                await existingUser.save();
+                console.log(`Seeded existing user: ${userData.email}`);
+            } else {
+                await User.create(userData);
+                console.log(`Seeded new user: ${userData.email}`);
+            }
+        }
+    } catch (error) {
+        console.error('Demo user seeding failed:', error.message);
+    }
+};
+
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-    console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-});
+const startServer = async () => {
+    try {
+        await connectDB();
+        await seedDemoUsers();
+        app.listen(PORT, () => {
+            console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+        });
+    } catch (error) {
+        console.error('Failed to start server:', error.message);
+        process.exit(1);
+    }
+};
+
+startServer();
